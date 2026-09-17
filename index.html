@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Colin Berta — Career River</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=EB+Garamond:ital@0;1&display=swap');
+
+  :root{
+    --mist:#eef0ef;
+    --paper:#f4f2ec;
+    --ink:#1c1f1e;
+    --fog:#7c8482;
+    --river:#3a4a4a;
+    --accent:#8a7a5c;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);
+    font-family:'EB Garamond', Georgia, serif;overflow-x:hidden;}
+  #contours{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.35;pointer-events:none;}
+
+  header{position:relative;z-index:2;text-align:center;padding:14vh 5vw 8vh;}
+  header h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(2.4rem,6vw,4.5rem);
+    letter-spacing:.03em;margin:0;color:var(--ink);}
+  header p{font-style:italic;color:var(--fog);font-size:1.15rem;margin-top:.6rem;letter-spacing:.04em;}
+  header .rule{width:120px;height:1px;background:var(--accent);margin:1.4rem auto;opacity:.6;}
+
+  #river-wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:2vh 4vw 20vh;}
+  svg#river{display:block;width:100%;height:auto;}
+  .river-path{fill:none;stroke:var(--river);stroke-width:2.2;opacity:.55;filter:drop-shadow(0 0 6px rgba(58,74,74,.15));}
+  .branch-path{fill:none;stroke:var(--accent);stroke-width:1.4;opacity:.4;stroke-dasharray:2 4;}
+
+  .stop{position:relative;display:flex;align-items:center;margin:0;padding:3.2vh 0;
+    opacity:0;transform:translateY(30px);transition:opacity 1.1s ease, transform 1.1s ease;}
+  .stop.visible{opacity:1;transform:translateY(0);}
+  .stop.left{justify-content:flex-start;}
+  .stop.right{justify-content:flex-end;}
+
+  .node{position:absolute;left:50%;transform:translateX(-50%);width:11px;height:11px;border-radius:50%;
+    background:var(--paper);border:2px solid var(--river);z-index:3;transition:box-shadow .6s ease, background .6s ease;}
+  .stop.visible .node{box-shadow:0 0 0 6px rgba(58,74,74,.08);}
+  .stop[data-track="main"] .node{border-color:var(--river);}
+  .stop[data-track^="branch"] .node{border-color:var(--accent);}
+
+  .card{width:42%;max-width:380px;padding:1.4rem 1.6rem;background:rgba(244,242,236,.7);
+    backdrop-filter:blur(2px);border:1px solid rgba(58,74,74,.12);position:relative;
+    filter:grayscale(1) contrast(.9) brightness(1.05);transition:filter 1.4s ease, border-color .6s ease;}
+  .stop.visible .card{filter:grayscale(0) contrast(1) brightness(1);}
+  .stop.left .card{margin-right:6%;text-align:right;}
+  .stop.right .card{margin-left:6%;text-align:left;}
+  .card .year{font-family:'Cormorant Garamond',serif;color:var(--accent);font-size:1.05rem;letter-spacing:.05em;}
+  .card h3{margin:.25rem 0 .1rem;font-weight:600;font-size:1.25rem;line-height:1.25;}
+  .card .org{color:var(--fog);font-style:italic;font-size:.98rem;margin-bottom:.4rem;}
+  .card p{margin:0;font-size:.95rem;line-height:1.5;color:#3a3d3c;}
+  .card .tag{display:inline-block;margin-top:.5rem;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--fog);border-top:1px solid rgba(0,0,0,.08);padding-top:.35rem;}
+
+  footer{position:relative;z-index:2;text-align:center;padding:6vh 5vw 12vh;color:var(--fog);font-style:italic;}
+  footer .rule{width:80px;height:1px;background:var(--accent);margin:0 auto 1.2rem;opacity:.6;}
+
+  @media (max-width:700px){
+    .stop.left, .stop.right{justify-content:flex-start;}
+    .card{width:80%;margin-left:12% !important;margin-right:0 !important;text-align:left !important;}
+    .node{left:6%;}
+  }
+</style>
+</head>
+<body>
+
+<svg id="contours" viewBox="0 0 1000 3000" preserveAspectRatio="none">
+  <!-- soft topographic contour lines, Ansel-Adams-ish ridgelines -->
+  <g stroke="#3a4a4a" fill="none" stroke-width="1">
+    <path d="M0,150 C200,100 350,200 500,140 C650,80 800,180 1000,120" opacity=".15"/>
+    <path d="M0,260 C220,210 380,300 520,240 C680,180 820,280 1000,220" opacity=".12"/>
+    <path d="M0,900 C220,850 380,940 520,880 C680,820 820,920 1000,860" opacity=".1"/>
+    <path d="M0,1600 C220,1550 380,1640 520,1580 C680,1520 820,1620 1000,1560" opacity=".1"/>
+    <path d="M0,2300 C220,2250 380,2340 520,2280 C680,2220 820,2320 1000,2260" opacity=".08"/>
+    <path d="M0,2800 C220,2750 380,2840 520,2780 C680,2720 820,2820 1000,2760" opacity=".07"/>
+  </g>
+</svg>
+
+<header>
+  <h1>Colin Berta</h1>
+  <div class="rule"></div>
+  <p>A career, like a river through the Highlands —<br>carving one course, gathering many.</p>
+</header>
+
+<div id="river-wrap">
+  <svg id="river" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <path class="river-path" id="river-main" d="M50,0 C50,0 50,0 50,0" vector-effect="non-scaling-stroke"/>
+  </svg>
+  <div id="stops"></div>
+</div>
+
+<footer>
+  <div class="rule"></div>
+  <p>18+ years, one winding path. Let's talk about where it goes next.</p>
+</footer>
+
+<script>
+const data = [
+  {
+    "year": "2002-2004",
+    "title": "Client Operations Associate \u2192 Training Coordinator",
+    "org": "Fisher Investments",
+    "track": "main",
+    "note": "Where the client-relationship instincts started."
+  },
+  {
+    "year": "2004-2006",
+    "title": "Support Analyst",
+    "org": "salesforce.com",
+    "track": "main",
+    "note": "Joined Salesforce \u2014 tabs were cool, S-Controls ruled."
+  },
+  {
+    "year": "2006-2007",
+    "title": "Associate Sales Engineer",
+    "org": "salesforce.com",
+    "track": "main",
+    "note": ""
+  },
+  {
+    "year": "2007-2009",
+    "title": "Engagement Manager \u2192 Platform Specialist",
+    "org": "Astadia",
+    "track": "branch-a",
+    "note": "A tributary into force.com product building."
+  },
+  {
+    "year": "2009-2011",
+    "title": "Sales Engineer, Financial Services",
+    "org": "salesforce.com",
+    "track": "main",
+    "note": "Rejoins the main channel."
+  },
+  {
+    "year": "2011-2012",
+    "title": "Sales Engineer",
+    "org": "Hearsay Social",
+    "track": "branch-b",
+    "note": "A short branch into a startup."
+  },
+  {
+    "year": "2012",
+    "title": "Sales Effectiveness",
+    "org": "LinkedIn",
+    "track": "branch-b",
+    "note": "Global sales adoption & enablement."
+  },
+  {
+    "year": "2012-2014",
+    "title": "Senior/Lead Social Architect",
+    "org": "salesforce.com Marketing Cloud",
+    "track": "main",
+    "note": "Back to Salesforce, Marketing Cloud presales."
+  },
+  {
+    "year": "2015-2019",
+    "title": "Principal Analytics Architect \u2192 Master SE, Analytics",
+    "org": "salesforce.com",
+    "track": "main",
+    "note": "West Coast Wave/Analytics."
+  },
+  {
+    "year": "2017-2019",
+    "title": "Strategic Account Executive, Service Cloud",
+    "org": "salesforce.com",
+    "track": "branch-c",
+    "note": "Crossed to the AE side of the river."
+  },
+  {
+    "year": "2019-2020",
+    "title": "Global Director, Solution Architecture",
+    "org": "Salesforce.Org",
+    "track": "main",
+    "note": "Mission-driven work for nonprofits."
+  },
+  {
+    "year": "2020-2023",
+    "title": "Cross-Cloud Architect \u2192 Principal Solution Engineer",
+    "org": "Salesforce, Financial Services",
+    "track": "main",
+    "note": ""
+  },
+  {
+    "year": "2024",
+    "title": "Director of Services \u2192 VP, Growth & Development",
+    "org": "Idealist Consulting",
+    "track": "branch-d",
+    "note": "Led Sales & Client Success through transformation; MEDDPICC, GTM strategy."
+  },
+  {
+    "year": "2025-Present",
+    "title": "Principal Strategic Solution Engineer",
+    "org": "Salesforce",
+    "track": "main",
+    "note": "High Tech, Bay Area \u2014 AI & Data Cloud."
+  }
+];
+
+const stopsEl = document.getElementById('stops');
+data.forEach((d,i)=>{
+  const side = i % 2 === 0 ? 'left' : 'right';
+  const stop = document.createElement('div');
+  stop.className = 'stop ' + side;
+  stop.setAttribute('data-track', d.track);
+  stop.innerHTML = `
+    <div class="node"></div>
+    <div class="card">
+      <div class="year">${d.year}</div>
+      <h3>${d.title}</h3>
+      <div class="org">${d.org}</div>
+      <p>${d.note || ''}</p>
+      <div class="tag">${d.track === 'main' ? 'Main Channel' : 'Tributary'}</div>
+    </div>`;
+  stopsEl.appendChild(stop);
+});
+
+// Reveal on scroll — "develops like a photograph"
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold:0.25});
+document.querySelectorAll('.stop').forEach(s=>io.observe(s));
+
+// Draw a gently wandering river path down through node positions
+function drawRiver(){
+  const wrap = document.getElementById('river-wrap');
+  const nodes = document.querySelectorAll('.node');
+  const wrapRect = wrap.getBoundingClientRect();
+  let d = '';
+  nodes.forEach((n,i)=>{
+    const r = n.getBoundingClientRect();
+    const x = ((r.left + r.width/2 - wrapRect.left) / wrapRect.width) * 100;
+    const y = ((r.top + r.height/2 - wrapRect.top) / wrapRect.height) * 100;
+    const wobble = (i % 2 === 0 ? -6 : 6);
+    if(i===0){ d += `M${x+wobble*0.3},${y} `; }
+    else{
+      const prevY = d.match(/,(\-?[\d.]+)\s*$/);
+      d += `Q${x+wobble},${y-2} ${x},${y} `;
+    }
+  });
+  document.getElementById('river-main').setAttribute('d', d);
+  const svg = document.getElementById('river');
+  svg.setAttribute('viewBox', `0 0 100 ${wrapRect.height/ (wrapRect.width/100)}`);
+  document.getElementById('river').style.height = wrapRect.height + 'px';
+}
+window.addEventListener('load', ()=>{ setTimeout(drawRiver, 100); });
+window.addEventListener('resize', ()=>{ clearTimeout(window._rt); window._rt = setTimeout(drawRiver, 150); });
+</script>
+</body>
+</html>
